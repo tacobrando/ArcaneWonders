@@ -1,0 +1,4 @@
+name: ArcaneWonders
+version: '1.0-ALPHA'
+main: dev.tacobrando.arcanewonders.ArcaneWonders
+api-version: 1.20

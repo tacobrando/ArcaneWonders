@@ -1,0 +1,4 @@
+name: ArcaneWonders
+version: '${version}'
+main: dev.tacobrando.arcanewonders.ArcaneWonders
+api-version: 1.20
