@@ -1,0 +1,72 @@
+# Gradle files
+.gradle/
+build/
+
+# IDE files
+.idea/
+
+# OS files
+.DS_Store  # If you're on a Mac
+
+# Built artifacts
+bin/
+out/
+
+# Local properties file
+local.properties
+
+# Gradle wrapper
+gradlew
+gradlew.bat
+gradle/
+
+# Kotlin
+*.class
+*.kotlin_metadata
+*.module
+
+# Miscellaneous
+*.log
+*.iml
+*.ipr
+*.iws
+*.bak
+*.swp
+*.swo
+*.orig
+*.rej
+*.pyc
+*.pyo
+*.rbc
+*.ja~
+*.sh~
+*.fish~
+*.c~
+*.h~
+*.hpp~
+*.cxx~
+*.cpp~
+*.cc~
+*.cs~
+*.m~
+*.mm~
+*.C~
+*.tokens
+*.pidb
+*.userprefs
+*.csproj.user
+*.suo
+*.resharper.user
+*.resharper
+*.resharper.user
+*.sln.docstates
+*.cache
+*.sln.ide/
+
+# Gradle Daemon
+.gradle-daemon/
+
+# Test output files
+*.testOutput
+*.testOutput.tmp
+*.tmp
