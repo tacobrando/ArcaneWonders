@@ -16,6 +16,7 @@ object Effects {
 
             firework.fireworkMeta = fireworkMeta
             firework.detonate()
+            
         }
     }
 }

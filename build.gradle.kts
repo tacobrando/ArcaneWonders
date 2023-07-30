@@ -27,9 +27,11 @@ repositories {
 }
 
 dependencies {
+    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.13-SNAPSHOT")
     compileOnly("org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT:remapped-mojang")
     implementation("org.jetbrains.kotlin:kotlin-script-runtime")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
 }
 
 val targetJavaVersion = 17

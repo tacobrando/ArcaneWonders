@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 
-open class CustomItem(val material: Material) {
+open class ArcaneWondersItem(val material: Material) {
     val item: ItemStack = ItemStack(material)
     var meta: ItemMeta = item.itemMeta!!
 

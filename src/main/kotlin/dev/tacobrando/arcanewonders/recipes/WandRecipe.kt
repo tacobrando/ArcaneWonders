@@ -19,7 +19,6 @@ object WandRecipe {
             verticalRecipe.shape("E", "B", "B")
             verticalRecipe.setIngredient('B', Material.BLAZE_ROD)
             verticalRecipe.setIngredient('E', Material.ENDER_PEARL)
-    
             
             Bukkit.addRecipe(verticalRecipe)
         }
