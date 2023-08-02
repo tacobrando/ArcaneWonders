@@ -1,6 +1,6 @@
 package dev.tacobrando.arcanewonders.player
 
-import dev.tacobrando.arcanewonders.ArcaneWonders
+import dev.tacobrando.arcanewonders.ArcaneWondersPlugin
 import dev.tacobrando.arcanewonders.entities.PortalEntity
 import dev.tacobrando.arcanewonders.items.wands.teleport.TeleportWandItem
 import org.bukkit.Bukkit
@@ -15,7 +15,7 @@ class PlayerPortalTracker : BukkitRunnable() {
 
     init {
         // Start the task immediately and repeat every tick
-        this.runTaskTimer(ArcaneWonders.instance, 0L, 1L)
+        this.runTaskTimer(ArcaneWondersPlugin.instance, 0L, 1L)
     }
 
     override fun run() {
@@ -67,7 +67,7 @@ class PlayerPortalTracker : BukkitRunnable() {
 
                 player.teleport(teleportLocation)
             }
-        }.runTaskLater(ArcaneWonders.instance, 0L)
+        }.runTaskLater(ArcaneWondersPlugin.instance, 0L)
     }
     private fun schedulePortalRemoval(portal: PortalEntity, player: Player? = null) {
         object : BukkitRunnable() {
@@ -75,7 +75,7 @@ class PlayerPortalTracker : BukkitRunnable() {
                 portal.cancel() // Cancel the BukkitRunnable task
                 player?.let { TeleportWandItem.activePortals.remove(it) } // Remove the player from the activePortals map
             }
-        }.runTaskLater(ArcaneWonders.instance, 20L) // 20 ticks = 1 seconds
+        }.runTaskLater(ArcaneWondersPlugin.instance, 20L) // 20 ticks = 1 seconds
     }
     // Helper function to calculate the horizontal distance between two locations
     private fun getHorizontalDistance(loc1: Location, loc2: Location): Double {

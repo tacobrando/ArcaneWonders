@@ -1,6 +1,6 @@
 package dev.tacobrando.arcanewonders.items
 
-import dev.tacobrando.arcanewonders.ArcaneWonders
+import dev.tacobrando.arcanewonders.ArcaneWondersPlugin
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
@@ -16,13 +16,13 @@ open class ArcaneWondersItem(val itemType: ItemTypes) {
     }
 
     fun setNbtTag(itemKey: String, value: Boolean) {
-        val key = NamespacedKey(ArcaneWonders.instance, itemKey)
+        val key = NamespacedKey(ArcaneWondersPlugin.instance, itemKey)
         meta.persistentDataContainer.set(key, PersistentDataType.BOOLEAN, value)
         item.itemMeta = meta
     }
 
     fun getNbtTag(itemKey: String): Boolean {
-        val key = NamespacedKey(ArcaneWonders.instance, itemKey)
+        val key = NamespacedKey(ArcaneWondersPlugin.instance, itemKey)
         return meta.persistentDataContainer.get(key, PersistentDataType.BOOLEAN) ?: false
     }
     fun fetchItem() = item
