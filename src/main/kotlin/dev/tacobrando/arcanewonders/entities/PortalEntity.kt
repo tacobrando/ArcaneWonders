@@ -1,3 +1,5 @@
+package dev.tacobrando.arcanewonders.entities
+
 import dev.tacobrando.arcanewonders.ArcaneWonders
 import dev.tacobrando.arcanewonders.items.wands.teleport.TeleportWandItem
 import org.bukkit.Color
@@ -9,10 +11,10 @@ import org.bukkit.scheduler.BukkitRunnable
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
+import kotlin.math.sqrt
 
-class PortalEntity(private val player: Player, private val customPortalLocation: Location? = null) : BukkitRunnable() {
+class PortalEntity(private val player: Player, customPortalLocation: Location? = null) : BukkitRunnable() {
     companion object {
-        const val PORTAL_DISTANCE = 1
         const val PORTAL_DURATION = 200
         const val PORTAL_RADIUS_X_START = 0.1
         const val PORTAL_RADIUS_Y_START = 0.1
@@ -25,31 +27,78 @@ class PortalEntity(private val player: Player, private val customPortalLocation:
     private var currentRadiusX: Double = PORTAL_RADIUS_X_START
     private var currentRadiusY: Double = PORTAL_RADIUS_Y_START
     private val initialYaw: Double = Math.toRadians(player.location.yaw.toDouble())
-    private val initialDirection = player.location.direction
     private var count = 0
     private val portalLocation: Location = customPortalLocation ?: calculatePortalSpawnLocation()
     init {
         this.runTaskTimer(ArcaneWonders.instance, 0L, 1L)
     }
-
     private fun calculatePortalSpawnLocation(): Location {
-        val spawnLocation = player.eyeLocation.add(player.location.direction.multiply(1))
-        val block = spawnLocation.block
-        if (!block.type.isAir) {
-            return if (block.getRelative(BlockFace.UP).type.isAir) {
-                // If there's a block where the portal is supposed to spawn, spawn it on top
-                block.location.add(0.0, 1.0, 0.0)
-            } else {
-                // If there's a block in front of the player, spawn the portal a block further
-                spawnLocation.add(player.location.direction)
+        val rayTraceResult = player.rayTraceBlocks(4.0) // Ray trace up to 4 blocks away
+        return if (rayTraceResult != null) {
+            val hitBlock = rayTraceResult.hitBlock
+            val hitBlockFace = rayTraceResult.hitBlockFace
+
+            // Debugging: Print information about the hit block and face
+            if (hitBlock != null) {
+                println("Hit Block: ${hitBlock.type} at ${hitBlock.location}")
             }
+            println("Hit Block Face: $hitBlockFace")
+
+            // If a block was hit, spawn the portal on the face of the block that was hit
+            val spawnLocation = when (hitBlockFace) {
+                BlockFace.UP -> {
+                    // If the top face of a block was hit, check if it's a wall (1x2 vertical surface)
+                    if (isWall(hitBlock!!.location)) {
+                        // If it's a wall, spawn the portal on the wall from top to bottom
+                        var portalLocation = hitBlock.location.add(0.5, 1.0, 0.5)
+                        while (!portalLocation.block.type.isAir) {
+                            portalLocation = portalLocation.add(0.0, 1.0, 0.0)
+                        }
+                        portalLocation.subtract(0.0, 1.0, 0.0)
+                    } else {
+                        // If it's not a wall, spawn the portal on top of the block
+                        hitBlock.location.add(0.5, 1.0, 0.5)
+                    }
+                }
+                BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST -> {
+                    // If a side face of a block was hit, spawn the portal from top to bottom on the wall
+                    var portalLocation = hitBlock?.location!!.add(0.5, 0.5, 0.5)
+                    while (!portalLocation.block.type.isAir) {
+                        portalLocation = portalLocation.add(0.0, 1.0, 0.0)
+                    }
+                    portalLocation.subtract(0.0, 1.0, 0.0)
+                }
+                else -> {
+                    // For any other case, spawn the portal on top of the block
+                    hitBlock?.location!!.add(0.5, 1.0, 0.5)
+                }
+            }
+            // Move the portal one block higher to avoid overlapping with the wall
+            spawnLocation.add(0.0, 1.0, 0.0)
+        } else {
+            // If no block was hit, spawn the portal at the maximum reach of the player
+            val direction = player.location.direction
+            val spawnLocation = player.location.add(direction.multiply(4)) // Add the direction the player is looking
+            // Adjust the y-coordinate of the spawn location to be the height of the highest non-air block at the new x and z coordinates
+            val highestBlockY = spawnLocation.world?.getHighestBlockYAt(spawnLocation.blockX, spawnLocation.blockZ)
+            if (highestBlockY != null && highestBlockY > spawnLocation.y) {
+                spawnLocation.y = highestBlockY.toDouble()
+            }
+            spawnLocation
         }
-        return spawnLocation
+    }
+
+    private fun isWall(location: Location): Boolean {
+        // Check if the location is a wall (1x2 vertical surface with no obstructions)
+        val block1 = location.block
+        val block2 = location.clone().add(0.0, 1.0, 0.0).block
+        return block1.type.isSolid && block2.type.isSolid
     }
 
     fun getPortalLocation(): Location = portalLocation
     fun getCurrentRadiusX(): Double = currentRadiusX
-    fun getCurrentRadiusY(): Double = currentRadiusY
+
+//    fun getCurrentRadiusY(): Double = currentRadiusY
     override fun run() {
         player.isInvulnerable = false
         if (count >= PORTAL_DURATION) {
@@ -95,8 +144,8 @@ class PortalEntity(private val player: Player, private val customPortalLocation:
             // Rotate the particleLocation around the Y-axis based on the player's yaw
             val particleLocation = portalLocation.clone().add(x * cosYaw, y, x * sinYaw)
 
-            val distance = Math.sqrt(x * x + y * y)
-            val colorFraction = 1 - distance / Math.sqrt(currentRadiusX * currentRadiusX + currentRadiusY * currentRadiusY)
+            val distance = sqrt(x * x + y * y)
+            val colorFraction = 1 - distance / sqrt(currentRadiusX * currentRadiusX + currentRadiusY * currentRadiusY)
 
             val r = lerp(darkCyan.red.toDouble(), lightAqua.red.toDouble(), colorFraction).toInt()
             val g = lerp(darkCyan.green.toDouble(), lightAqua.green.toDouble(), colorFraction).toInt()

@@ -6,8 +6,6 @@ import org.bukkit.NamespacedKey
 import org.bukkit.Material
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ItemStack
-import org.bukkit.plugin.java.JavaPlugin
-
 
 object WandRecipe {
     fun register(item: ItemStack, key: String) {

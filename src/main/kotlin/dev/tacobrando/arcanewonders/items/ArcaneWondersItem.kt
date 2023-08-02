@@ -1,12 +1,13 @@
 package dev.tacobrando.arcanewonders.items
 
-import org.bukkit.Material
+import dev.tacobrando.arcanewonders.ArcaneWonders
+import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.persistence.PersistentDataType
 
-open class ArcaneWondersItem(val material: Material) {
-    val item: ItemStack = ItemStack(material)
+open class ArcaneWondersItem(val itemType: ItemTypes) {
+    val item: ItemStack = ItemStack(itemType.toMaterial()) // Use the enum to get the Material
     var meta: ItemMeta = item.itemMeta!!
 
     fun setDisplayName(name: String) {
@@ -14,13 +15,15 @@ open class ArcaneWondersItem(val material: Material) {
         item.itemMeta = meta
     }
 
-    fun setNbtTag(key: String, value: String) {
-        val meta = item.itemMeta as Damageable
-        meta.setDamage(value.hashCode())
+    fun setNbtTag(itemKey: String, value: Boolean) {
+        val key = NamespacedKey(ArcaneWonders.instance, itemKey)
+        meta.persistentDataContainer.set(key, PersistentDataType.BOOLEAN, value)
         item.itemMeta = meta
     }
 
-    fun fetchItem():ItemStack {
-        return item
+    fun getNbtTag(itemKey: String): Boolean {
+        val key = NamespacedKey(ArcaneWonders.instance, itemKey)
+        return meta.persistentDataContainer.get(key, PersistentDataType.BOOLEAN) ?: false
     }
+    fun fetchItem() = item
 }

@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "dev.tacobrando"
-version = "1.0-ALPHA"
+version = "1.0"
 
 repositories {
     gradlePluginPortal()
