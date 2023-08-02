@@ -5,9 +5,9 @@ import dev.tacobrando.arcanewonders.listeners.WandEventListener
 import dev.tacobrando.arcanewonders.player.PlayerPortalTracker
 import org.bukkit.plugin.java.JavaPlugin
 
-class ArcaneWonders : JavaPlugin() {
+class ArcaneWondersPlugin : JavaPlugin() {
     companion object {
-        lateinit var instance: ArcaneWonders
+        lateinit var instance: ArcaneWondersPlugin
     }
 
     init {

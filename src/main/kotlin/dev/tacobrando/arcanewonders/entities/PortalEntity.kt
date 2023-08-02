@@ -1,6 +1,6 @@
 package dev.tacobrando.arcanewonders.entities
 
-import dev.tacobrando.arcanewonders.ArcaneWonders
+import dev.tacobrando.arcanewonders.ArcaneWondersPlugin
 import dev.tacobrando.arcanewonders.items.wands.teleport.TeleportWandItem
 import org.bukkit.Color
 import org.bukkit.Location
@@ -30,7 +30,7 @@ class PortalEntity(private val player: Player, customPortalLocation: Location? =
     private var count = 0
     private val portalLocation: Location = customPortalLocation ?: calculatePortalSpawnLocation()
     init {
-        this.runTaskTimer(ArcaneWonders.instance, 0L, 1L)
+        this.runTaskTimer(ArcaneWondersPlugin.instance, 0L, 1L)
     }
     private fun calculatePortalSpawnLocation(): Location {
         val rayTraceResult = player.rayTraceBlocks(4.0) // Ray trace up to 4 blocks away
