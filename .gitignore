@@ -2,6 +2,9 @@
 .gradle/
 build/
 
+# VSCode files
+.vscode/
+
 # IDE files
 .idea/
 
