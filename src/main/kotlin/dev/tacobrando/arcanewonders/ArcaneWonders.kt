@@ -25,7 +25,7 @@ class ArcaneWonders : JavaPlugin() {
         registerItems()
         registerListeners()
 
-        PlayerPortalTracker
+        PlayerPortalTracker()
 
         logger.info("ArcaneWonders Initialized")
     }

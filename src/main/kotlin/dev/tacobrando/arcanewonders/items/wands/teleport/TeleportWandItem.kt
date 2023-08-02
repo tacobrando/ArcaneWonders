@@ -14,7 +14,7 @@ import org.bukkit.scheduler.BukkitRunnable
 
 open class TeleportWandItem: ArcaneWondersItem(BLAZE_ROD) {
     companion object {
-        val activePortals: MutableMap<Player, PortalEntity> = mutableMapOf()
+        val activePortals: MutableMap<Player, MutableList<PortalEntity>> = mutableMapOf()
     }
     init {
         setDisplayName("${WHITE}Wand of Teleportation")
@@ -29,12 +29,14 @@ open class TeleportWandItem: ArcaneWondersItem(BLAZE_ROD) {
 
     open fun createTeleportPortal(player: Player) {
         val portal = PortalEntity(player)
-        activePortals[player] = portal
+        val portalList = activePortals.getOrDefault(player, mutableListOf())
+        portalList.add(portal)
+        activePortals[player] = portalList
 
-        val portalLocation = portal.getPortalLocation()
-        player.sendMessage("$portalLocation")
-
-        println("Portal Spawn Coordinates (X, Y, Z): ${portalLocation.x}, ${portalLocation.y}, ${portalLocation.z}")
+        val bedSpawnLocation = player.bedSpawnLocation
+        val secondPortalLocation = bedSpawnLocation?.add(0.0, 1.0, 0.0) ?: player.world.spawnLocation.add(0.0, 1.0, 0.0)
+        val secondPortal = PortalEntity(player, secondPortalLocation)
+        portalList.add(secondPortal)
     }
 
 }

@@ -10,9 +10,9 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-class PortalEntity(private val player: Player) : BukkitRunnable() {
+class PortalEntity(private val player: Player, private val customPortalLocation: Location? = null) : BukkitRunnable() {
     companion object {
-        const val PORTAL_ENTITY_ID = 123
+        const val PORTAL_DISTANCE = 1
         const val PORTAL_DURATION = 200
         const val PORTAL_RADIUS_X_START = 0.1
         const val PORTAL_RADIUS_Y_START = 0.1
@@ -27,15 +27,29 @@ class PortalEntity(private val player: Player) : BukkitRunnable() {
     private val initialYaw: Double = Math.toRadians(player.location.yaw.toDouble())
     private val initialDirection = player.location.direction
     private var count = 0
-    private val portalLocation: Location = getPortalSpawnLocation()
+    private val portalLocation: Location = customPortalLocation ?: calculatePortalSpawnLocation()
     init {
         this.runTaskTimer(ArcaneWonders.instance, 0L, 1L)
+    }
+
+    private fun calculatePortalSpawnLocation(): Location {
+        val spawnLocation = player.eyeLocation.add(player.location.direction.multiply(1))
+        val block = spawnLocation.block
+        if (!block.type.isAir) {
+            return if (block.getRelative(BlockFace.UP).type.isAir) {
+                // If there's a block where the portal is supposed to spawn, spawn it on top
+                block.location.add(0.0, 1.0, 0.0)
+            } else {
+                // If there's a block in front of the player, spawn the portal a block further
+                spawnLocation.add(player.location.direction)
+            }
+        }
+        return spawnLocation
     }
 
     fun getPortalLocation(): Location = portalLocation
     fun getCurrentRadiusX(): Double = currentRadiusX
     fun getCurrentRadiusY(): Double = currentRadiusY
-
     override fun run() {
         player.isInvulnerable = false
         if (count >= PORTAL_DURATION) {
@@ -94,22 +108,6 @@ class PortalEntity(private val player: Player) : BukkitRunnable() {
 
         count++
     }
-
-    private fun getPortalSpawnLocation(): Location {
-        val spawnLocation = player.eyeLocation.add(player.location.direction.multiply(1))
-        val block = spawnLocation.block
-        if (!block.type.isAir) {
-            return if (block.getRelative(BlockFace.UP).type.isAir) {
-                // If there's a block where the portal is supposed to spawn, spawn it on top
-                block.location.add(0.0, 1.0, 0.0)
-            } else {
-                // If there's a block in front of the player, spawn the portal a block further
-                spawnLocation.add(player.location.direction)
-            }
-        }
-        return spawnLocation
-    }
-
     private fun lerp(start: Double, end: Double, fraction: Double): Double {
         return start + (end - start) * fraction
     }
