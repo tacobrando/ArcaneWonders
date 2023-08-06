@@ -15,7 +15,7 @@ import kotlin.math.sqrt
 
 class PortalEntity(private val player: Player, customPortalLocation: Location? = null) : BukkitRunnable() {
     companion object {
-        const val PORTAL_DURATION = 200
+        const val PORTAL_DURATION = 100
         const val PORTAL_RADIUS_X_START = 0.1
         const val PORTAL_RADIUS_Y_START = 0.1
         const val PORTAL_RADIUS_X_END = 0.5

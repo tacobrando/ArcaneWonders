@@ -38,11 +38,15 @@ class PlayerPortalTracker : BukkitRunnable() {
         }
     }
     private fun handlePlayerPortalEntry(player: Player, portalLocation: Location) {
-        val bedSpawnLocation = player.bedSpawnLocation
-        schedulePlayerTeleportation(player, portalLocation, bedSpawnLocation)
+        // Get the second portal's location (destination) for the player
+        val destinationPortal = TeleportWandItem.activePortals[player]?.get(1)
+        val destinationLocation = destinationPortal?.getPortalLocation() ?: player.bedSpawnLocation ?: player.world.spawnLocation
+
+        schedulePlayerTeleportation(player, portalLocation, destinationLocation)
         scheduleAllPortalsRemoval(player)
         teleportDurations[player] = System.currentTimeMillis() + 2000 // 2 second cool-down
     }
+
 
     private fun scheduleAllPortalsRemoval(player: Player) {
         val portals = TeleportWandItem.activePortals[player] ?: return
@@ -50,11 +54,11 @@ class PlayerPortalTracker : BukkitRunnable() {
             schedulePortalRemoval(portal, player)
         }
     }
-    private fun schedulePlayerTeleportation(player: Player, portalLocation: Location, bedSpawnLocation: Location?) {
+    private fun schedulePlayerTeleportation(player: Player, portalLocation: Location, destinationLocation: Location) {
         val entryYawDifference = player.location.yaw - portalLocation.yaw
         object : BukkitRunnable() {
             override fun run() {
-                val teleportLocation = (bedSpawnLocation ?: player.world.spawnLocation).clone()
+                val teleportLocation = destinationLocation.clone()
                 teleportLocation.yaw = portalLocation.yaw + entryYawDifference // Adjust the yaw based on the entry yaw difference
 
                 // Adjust the teleport location based on the direction the player was facing when they entered the portal
@@ -65,10 +69,13 @@ class PlayerPortalTracker : BukkitRunnable() {
                     else -> teleportLocation.add(0.0, 0.0, 0.0) // South
                 }
 
+                teleportLocation.subtract(0.0, 1.0, 0.0)
+
                 player.teleport(teleportLocation)
             }
         }.runTaskLater(ArcaneWondersPlugin.instance, 0L)
     }
+
     private fun schedulePortalRemoval(portal: PortalEntity, player: Player? = null) {
         object : BukkitRunnable() {
             override fun run() {

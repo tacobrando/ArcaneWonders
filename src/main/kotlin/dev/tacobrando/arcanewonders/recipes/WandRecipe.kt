@@ -8,17 +8,18 @@ import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.ItemStack
 
 object WandRecipe {
-    fun register(item: ItemStack, key: String) {
-        val verticalKey = NamespacedKey(ArcaneWondersPlugin.instance, key)
+    fun register(item: ItemStack, key: String, shape: List<String>, ingredients: Map<Char, Material>) {
+        val recipeKey = NamespacedKey(ArcaneWondersPlugin.instance, key)
 
-        if(Bukkit.getRecipe(verticalKey) == null) {
-            val verticalRecipe = ShapedRecipe(verticalKey, item)
-        
-            verticalRecipe.shape("E", "B", "B")
-            verticalRecipe.setIngredient('B', Material.BLAZE_ROD)
-            verticalRecipe.setIngredient('E', Material.ENDER_PEARL)
-            
-            Bukkit.addRecipe(verticalRecipe)
+        if (Bukkit.getRecipe(recipeKey) == null) {
+            val recipe = ShapedRecipe(recipeKey, item)
+
+            recipe.shape(*shape.toTypedArray())
+            ingredients.forEach { (char, material) ->
+                recipe.setIngredient(char, material)
+            }
+
+            Bukkit.addRecipe(recipe)
         }
     }
 }
