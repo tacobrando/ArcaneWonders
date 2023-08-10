@@ -17,7 +17,9 @@ class ArcaneWondersPlugin : JavaPlugin() {
         initialize()
     }
 
-    override fun onDisable() {}
+    override fun onDisable() {
+        logger.info("Magic Fading...")
+    }
 
 
     private fun initialize() {

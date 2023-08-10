@@ -10,7 +10,7 @@ plugins {
     kotlin("jvm") version "1.9.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("me.tagavari.nmsremap") version "1.0.0"
-    `distribution`
+    distribution
 }
 
 group = "dev.tacobrando"
@@ -31,7 +31,8 @@ dependencies {
     compileOnly("org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT:remapped-mojang")
     implementation("org.jetbrains.kotlin:kotlin-script-runtime")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-
+    testImplementation("org.mockito:mockito-core:3.12.4")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 }
 
 val targetJavaVersion = 17

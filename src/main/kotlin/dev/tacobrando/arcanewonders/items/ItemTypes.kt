@@ -15,7 +15,6 @@ enum class ItemTypes {
             // Add other mappings for different wand types here if needed
         }
     }
-
     fun getDisplayName(): String {
         return when (this) {
             WAND_TELEPORT -> "${ChatColor.WHITE}Wand of Teleportation"

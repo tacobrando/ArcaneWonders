@@ -20,8 +20,8 @@ class PortalEntity(private val player: Player, customPortalLocation: Location? =
         const val PORTAL_RADIUS_Y_START = 0.1
         const val PORTAL_RADIUS_X_END = 0.5
         const val PORTAL_RADIUS_Y_END = 1.0
-        const val PARTICLE_COUNT_OUTLINE = 100
-        const val PARTICLE_COUNT_INSIDE = 100
+        const val PARTICLE_COUNT_OUTLINE = 70
+        const val PARTICLE_COUNT_INSIDE = 70
     }
 
     private var currentRadiusX: Double = PORTAL_RADIUS_X_START

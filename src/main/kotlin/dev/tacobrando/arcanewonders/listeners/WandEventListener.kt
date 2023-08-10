@@ -3,7 +3,6 @@ package dev.tacobrando.arcanewonders.listeners
 import dev.tacobrando.arcanewonders.ArcaneWondersPlugin
 import dev.tacobrando.arcanewonders.items.wands.teleport.TeleportWandItem
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -24,7 +23,7 @@ object WandEventListener : Listener {
     private val lastInteractedBlockFace: MutableMap<Player, BlockFace> = mutableMapOf()
     private val selectedTeleportMode: MutableMap<Player, Material> = mutableMapOf()
 
-    private fun createTeleportModeSelectionInventory(): Inventory = Bukkit.createInventory(null, 9, "Select Teleport Mode").apply {
+    private fun createTeleportModeSelectionInventory(player: Player): Inventory = Bukkit.createInventory(player, 9, "Select Teleport Mode").apply {
         setItem(0, ItemStack(Material.COMPASS).apply {
             val meta = itemMeta
             meta?.setDisplayName("Home")
@@ -46,22 +45,23 @@ object WandEventListener : Listener {
         }
     }
     private fun getRandomLandLocation(player: Player): Location {
-        var randomLocation: Location
-        val maxRetries = 5  // Set number of retries to 10
+        val maxRetries = 2
         var retries = 0
+        var randomLocation: Location = player.location  // Initialize to player's current location
 
-        do {
-            val distanceSteps = (20..100).random() * 10  // Increased minimum distance
-            val angle = (0..360).random().toDouble()
-            val randomX = player.location.x + distanceSteps * cos(Math.toRadians(angle))
-            val randomZ = player.location.z + distanceSteps * sin(Math.toRadians(angle))
+        while (retries < maxRetries) {
+            val distanceSteps = (20..100).random() * 10
+            val angleInRadians = (0..(2 * Math.PI).toInt()).random()
+            val randomX = player.location.x + distanceSteps * cos(angleInRadians.toDouble())
+            val randomZ = player.location.z + distanceSteps * sin(angleInRadians.toDouble())
             val newY = player.world.getHighestBlockYAt(randomX.toInt(), randomZ.toInt()).toDouble() + 1
             randomLocation = Location(player.world, randomX, newY, randomZ)
-            retries++
-        } while (!isSafeSpawnLocation(randomLocation) && retries < maxRetries)
 
-        if (retries == maxRetries) {
-            return player.location
+            if (isSafeSpawnLocation(randomLocation)) {
+                return randomLocation
+            }
+
+            retries++
         }
 
         return randomLocation
@@ -72,7 +72,7 @@ object WandEventListener : Listener {
         val blockBelowType = location.add(0.0, -1.0, 0.0).block.type
         val blockAboveType = location.add(0.0, 1.0, 0.0).block.type
 
-        return blockType == Material.AIR && blockAboveType == Material.AIR && blockBelowType != Material.WATER && blockBelowType != Material.LAVA
+        return blockType == Material.AIR && blockAboveType == Material.AIR && blockBelowType.isSolid && blockBelowType != Material.WATER && blockBelowType != Material.LAVA
     }
 
     @EventHandler
@@ -98,7 +98,7 @@ object WandEventListener : Listener {
 
         if (item.type == teleportWand.item.type && itemMeta?.displayName == teleportWand.item.itemMeta?.displayName) {
             if (event.action == Action.LEFT_CLICK_AIR || event.action == Action.LEFT_CLICK_BLOCK) {
-                player.openInventory(createTeleportModeSelectionInventory())
+                player.openInventory(createTeleportModeSelectionInventory(player))
             } else if (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK) {
                 lastInteractedBlockFace[player] = event.blockFace
                 selectedTeleportMode[player]?.let { mode ->
@@ -107,8 +107,6 @@ object WandEventListener : Listener {
             }
         }
     }
-
-
 
     private fun handleModeSelection(player: Player, mode: Material) {
         val wandItem = TeleportWandItem()
