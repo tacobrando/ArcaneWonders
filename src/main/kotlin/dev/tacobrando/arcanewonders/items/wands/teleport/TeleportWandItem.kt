@@ -9,6 +9,7 @@ import org.bukkit.ChatColor.*
 import org.bukkit.Location
 import org.bukkit.Material.*
 import org.bukkit.NamespacedKey
+import org.bukkit.Sound.*
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
@@ -66,6 +67,7 @@ class TeleportWandItem : ArcaneWondersItem(ItemTypes.WAND_TELEPORT) {
 
             heldItemMeta?.persistentDataContainer?.set(NamespacedKey(ArcaneWondersPlugin.instance, COOLDOWN_KEY), PersistentDataType.LONG, System.currentTimeMillis() + COOLDOWN_DURATION)
             heldItem.itemMeta = heldItemMeta
+            player.playSound(portal.getPortalLocation(), ENTITY_ENDERMAN_TELEPORT, 1f, 1f)
         }
     }
 }
