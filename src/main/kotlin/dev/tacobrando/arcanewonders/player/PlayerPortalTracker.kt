@@ -28,17 +28,17 @@ class PlayerPortalTracker : BukkitRunnable() {
         val portals = TeleportWandItem.activePortals[player] ?: return
         for (portal in portals) {
             val portalLocation = portal.getPortalLocation()
-            val portalRadius: Double = portal.getCurrentRadiusX() // Specify the type as Double
+            val portalRadius: Double = portal.getCurrentRadiusX()
             // Calculate the horizontal distance between the player and the center of the portal
             val horizontalDistance: Double = getHorizontalDistance(playerLocation, portalLocation)
-            // Check if the player is within the portal's radius (ignoring height)
+            // Check if the player is within the portal's radius
             if (horizontalDistance <= portalRadius && (teleportDurations[player] ?: 0L) < System.currentTimeMillis()) {
                 handlePlayerPortalEntry(player, portalLocation)
             }
         }
     }
     private fun handlePlayerPortalEntry(player: Player, portalLocation: Location) {
-        // Get the second portal's location (destination) for the player
+        // Get the second portal's destination
         val destinationPortal = TeleportWandItem.activePortals[player]?.get(1)
         val destinationLocation = destinationPortal?.getPortalLocation() ?: player.bedSpawnLocation ?: player.world.spawnLocation
 
@@ -59,9 +59,9 @@ class PlayerPortalTracker : BukkitRunnable() {
         object : BukkitRunnable() {
             override fun run() {
                 val teleportLocation = destinationLocation.clone()
-                teleportLocation.yaw = portalLocation.yaw + entryYawDifference // Adjust the yaw based on the entry yaw difference
+                teleportLocation.yaw = portalLocation.yaw + entryYawDifference // Adjusts the yaw based on the entry yaw difference
 
-                // Adjust the teleport location based on the direction the player was facing when they entered the portal
+                // Adjusts the teleport location based on the direction the player was facing
                 when (entryYawDifference) {
                     in -45.0..45.0 -> teleportLocation.add(0.0, 0.0, 0.0) // North
                     in 45.0..135.0 -> teleportLocation.add(-1.0, 0.0, 0.0) // West
@@ -79,12 +79,11 @@ class PlayerPortalTracker : BukkitRunnable() {
     private fun schedulePortalRemoval(portal: PortalEntity, player: Player? = null) {
         object : BukkitRunnable() {
             override fun run() {
-                portal.cancel() // Cancel the BukkitRunnable task
-                player?.let { TeleportWandItem.activePortals.remove(it) } // Remove the player from the activePortals map
+                portal.cancel()
+                player?.let { TeleportWandItem.activePortals.remove(it) } // Remove player from the activePortals map
             }
-        }.runTaskLater(ArcaneWondersPlugin.instance, 20L) // 20 ticks = 1 seconds
+        }.runTaskLater(ArcaneWondersPlugin.instance, 20L) // 20 ticks = 1 second
     }
-    // Helper function to calculate the horizontal distance between two locations
     private fun getHorizontalDistance(loc1: Location, loc2: Location): Double {
         return sqrt((loc1.x - loc2.x).pow(2) + (loc1.z - loc2.z).pow(2))
     }

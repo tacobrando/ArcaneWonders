@@ -64,7 +64,6 @@ class TeleportWandItem : ArcaneWondersItem(ItemTypes.WAND_TELEPORT) {
             val secondPortal = PortalEntity(player, secondPortalLocation)
             portalList.add(secondPortal)
 
-            // Set the new cooldown timestamp in the item's NBT tag
             heldItemMeta?.persistentDataContainer?.set(NamespacedKey(ArcaneWondersPlugin.instance, COOLDOWN_KEY), PersistentDataType.LONG, System.currentTimeMillis() + COOLDOWN_DURATION)
             heldItem.itemMeta = heldItemMeta
         }
