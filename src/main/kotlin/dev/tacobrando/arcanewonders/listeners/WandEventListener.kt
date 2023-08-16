@@ -25,6 +25,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import dev.tacobrando.arcanewonders.utilities.UtilityFunctions.setDisplayName
 import dev.tacobrando.arcanewonders.utilities.UtilityFunctions.colorize
+
 object WandEventListener : Listener {
     private val lastInteractedBlockFace: MutableMap<Player, BlockFace> = mutableMapOf()
     private val selectedTeleportMode: MutableMap<Player, TeleportMode> = mutableMapOf()

@@ -27,7 +27,7 @@ class ArcaneWondersPlugin : JavaPlugin() {
         registerListeners()
         PlayerPortalTracker()
 
-        logger.info("ArcaneWonders Initialized")
+        logger.info("Magic Restored!")
     }
 
     private fun registerItems() {
