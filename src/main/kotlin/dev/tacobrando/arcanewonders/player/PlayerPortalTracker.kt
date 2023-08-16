@@ -5,6 +5,7 @@ import dev.tacobrando.arcanewonders.entities.PortalEntity
 import dev.tacobrando.arcanewonders.items.wands.teleport.TeleportWandItem
 import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import kotlin.math.pow
@@ -29,14 +30,24 @@ class PlayerPortalTracker : BukkitRunnable() {
         for (portal in portals) {
             val portalLocation = portal.getPortalLocation()
             val portalRadius: Double = portal.getCurrentRadiusX()
+
             // Calculate the horizontal distance between the player and the center of the portal
             val horizontalDistance: Double = getHorizontalDistance(playerLocation, portalLocation)
-            // Check if the player is within the portal's radius
-            if (horizontalDistance <= portalRadius && (teleportDurations[player] ?: 0L) < System.currentTimeMillis()) {
+
+            // Calculate the vertical distance between the player and the center of the portal
+            val verticalDistance: Double = Math.abs(playerLocation.y - portalLocation.y)
+
+            // Offset to account for the player's height
+            val verticalOffset = 1.5  // This value can be adjusted as needed
+
+            // Check if the player is within the portal's radius both horizontally and vertically
+            if (horizontalDistance <= portalRadius && verticalDistance <= (portalRadius + verticalOffset) && (teleportDurations[player] ?: 0L) < System.currentTimeMillis()) {
                 handlePlayerPortalEntry(player, portalLocation)
             }
         }
     }
+
+
     private fun handlePlayerPortalEntry(player: Player, portalLocation: Location) {
         // Get the second portal's destination
         val destinationPortal = TeleportWandItem.activePortals[player]?.get(1)
@@ -77,13 +88,25 @@ class PlayerPortalTracker : BukkitRunnable() {
     }
 
     private fun schedulePortalRemoval(portal: PortalEntity, player: Player? = null) {
+        // Schedule the sound to play 1 second (20 ticks) before the portal disappears
+        object : BukkitRunnable() {
+            override fun run() {
+                player?.playSound(portal.getPortalLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 0.5f)
+            }
+        }.runTaskLater(ArcaneWondersPlugin.instance, 30L) // Play sound immediately
+
+        // Schedule the portal removal 1 second (20 ticks) after the sound plays
         object : BukkitRunnable() {
             override fun run() {
                 portal.cancel()
-                player?.let { TeleportWandItem.activePortals.remove(it) } // Remove player from the activePortals map
+                player?.let {
+                    TeleportWandItem.activePortals.remove(it) // Remove player from the activePortals map
+                }
             }
         }.runTaskLater(ArcaneWondersPlugin.instance, 20L) // 20 ticks = 1 second
     }
+
+
     private fun getHorizontalDistance(loc1: Location, loc2: Location): Double {
         return sqrt((loc1.x - loc2.x).pow(2) + (loc1.z - loc2.z).pow(2))
     }

@@ -94,9 +94,15 @@ object WandEventListener : Listener {
     }
 
     private fun getAdjustedPlayerLocation(target: Player): Location {
-        val direction = target.location.direction.normalize().multiply(-3.0) // blocks away in opposite direction
+        val direction = target.location.direction
+        direction.y = 0.0
+        if (direction.lengthSquared() < 1.0) {
+            direction.normalize()
+        }
+        direction.multiply(-3.0)  // Move 3 blocks away in the opposite horizontal direction
         return target.location.add(direction)
     }
+
 
     private fun createTeleportPortal(player: Player, entryLocation: Location, exitLocation: Location) {
         val wandItem = TeleportWandItem()

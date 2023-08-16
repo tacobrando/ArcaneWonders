@@ -5,6 +5,7 @@ import dev.tacobrando.arcanewonders.items.wands.teleport.TeleportWandItem
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Particle
+import org.bukkit.Sound.*
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
@@ -23,7 +24,7 @@ class PortalEntity(private val player: Player, customPortalLocation: Location? =
         const val PARTICLE_COUNT_OUTLINE = 70
         const val PARTICLE_COUNT_INSIDE = 70
     }
-
+    private var isSoundPlaying = false
     private var currentRadiusX: Double = PORTAL_RADIUS_X_START
     private var currentRadiusY: Double = PORTAL_RADIUS_Y_START
     private val initialYaw: Double = Math.toRadians(player.location.yaw.toDouble())
@@ -103,9 +104,20 @@ class PortalEntity(private val player: Player, customPortalLocation: Location? =
         player.isInvulnerable = false
         if (count >= PORTAL_DURATION) {
             TeleportWandItem.activePortals.remove(player)
+            object : BukkitRunnable() {
+                override fun run() {
+                    player.playSound(portalLocation, ENTITY_ENDERMAN_TELEPORT, 1f, 0.5f)
+                }
+            }.runTaskLater(ArcaneWondersPlugin.instance, 10L) // Play sound immediately
+            player.stopSound(BLOCK_PORTAL_AMBIENT)  // Stop the portal ambient sound
             this.cancel()
             return
         }
+
+    if (!isSoundPlaying) {
+        player.playSound(portalLocation, BLOCK_PORTAL_AMBIENT, 0.5f, 1f)
+        isSoundPlaying = true
+    }
 
         val darkCyan = Color.fromRGB(0, 139, 139)
         val lightAqua = Color.fromRGB(127, 255, 212)
