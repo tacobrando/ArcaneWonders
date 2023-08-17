@@ -87,7 +87,7 @@ object WandEventListener : Listener {
                 player.closeInventory()
             }
             Material.PLAYER_HEAD -> {
-                player.openInventory(createPlayerHeadsInventory(player.world))
+                player.openInventory(createPlayerHeadsInventory(player.world, player))
             }
             else -> {}
         }
@@ -99,9 +99,20 @@ object WandEventListener : Listener {
         if (direction.lengthSquared() < 1.0) {
             direction.normalize()
         }
-        direction.multiply(-3.0)  // Move 3 blocks away in the opposite horizontal direction
-        return target.location.add(direction)
+
+        val portalSpawnOffset = direction.clone().multiply(-3.0) // Move 3 blocks away in the opposite horizontal direction
+        val portalSpawnLocation = target.location.clone().add(portalSpawnOffset)
+
+        val blockBehindPlayer = target.location.subtract(target.location.direction).block
+        val blockAbovePlayer = blockBehindPlayer.getRelative(BlockFace.UP)
+
+        if (blockAbovePlayer.isEmpty && !blockAbovePlayer.isLiquid) {
+            return blockAbovePlayer.location
+        }
+
+        return portalSpawnLocation
     }
+
 
 
     private fun createTeleportPortal(player: Player, entryLocation: Location, exitLocation: Location) {
@@ -126,12 +137,19 @@ object WandEventListener : Listener {
     private fun handleModeSelection(player: Player, mode: TeleportMode) {
         val targetLocation = getTargetLocation(player, lastInteractedBlockFace[player])
         val exitLocation = when (mode) {
-            is TeleportMode.Home -> player.bedSpawnLocation ?: player.world.spawnLocation
+            is TeleportMode.Home -> {
+                if (player.world.environment == World.Environment.NETHER || player.world.environment == World.Environment.THE_END) {
+                    player.server.worlds.firstOrNull { it.environment == World.Environment.NORMAL }?.spawnLocation
+                } else {
+                    player.bedSpawnLocation ?: player.world.spawnLocation
+                }
+            }
             is TeleportMode.Random -> getRandomLandLocation(player)
             is TeleportMode.PlayerTarget -> getAdjustedPlayerLocation(mode.target)
         }
-        createTeleportPortal(player, targetLocation, exitLocation)
+        createTeleportPortal(player, targetLocation, exitLocation!!)
     }
+
     private fun createTeleportModeSelectionInventory(player: Player): Inventory = Bukkit.createInventory(player, 9, "Select Teleport Mode").apply {
         setItem(3, ItemStack(Material.COMPASS).apply {
             itemMeta = setDisplayName(itemMeta!!, "Home")
@@ -144,16 +162,18 @@ object WandEventListener : Listener {
             itemMeta = setDisplayName(itemMeta!!, "${ChatColor.GOLD}Player")
         })
     }
-    private fun createPlayerHeadsInventory(world: World): Inventory {
+    private fun createPlayerHeadsInventory(world: World, viewer: Player): Inventory {
         val players = world.players
         val invSize = (ceil(players.size / 9.0) * 9).toInt()
         val inv = Bukkit.createInventory(null, invSize, "Select Player")
 
         for (player in players) {
-            val playerHead = ItemStack(Material.PLAYER_HEAD).apply {
-                itemMeta = setDisplayName(itemMeta!!, player.name, player)
+            if(player != viewer) {
+                val playerHead = ItemStack(Material.PLAYER_HEAD).apply {
+                    itemMeta = setDisplayName(itemMeta!!, player.name, player)
+                }
+                inv.addItem(playerHead)
             }
-            inv.addItem(playerHead)
         }
         return inv
     }
